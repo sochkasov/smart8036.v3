@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test index file</title>
+    <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+    <!-- script src="semantic/dist/semantic.min.js"></script -->
+    <script src="jquery/jquery-3.1.0.js"></script>
+    <script src="sightglass/index.js"></script>
+    <script src="rivets/dist/rivets.js"></script>
+    <!-- Load c3.css -->
+    <link href="c3/c3.css" rel="stylesheet" type="text/css">
+
+    <!-- Load d3.js and c3.js -->
+    <script src="c3/d3.v3.min.js" charset="utf-8"></script>
+    <script src="c3/c3.min.js"></script>
+</head><body>
+<div class="ui secondary pointing menu">
+  <a class="item" href="index.html">Home </a>
+  <a class="item">Температура </a>
+  <a class="item" href="sensors.html">Датчики температуры </a>
+  <a class="item" href="prog.html">Программа управления </a>
+  <a class="item active" href="actuators.html">Нагрузки </a>
+  <a class="ui item">Настройки </a>
+  </div>
+</div>
+<div class="ui segment">
+    <h2 class="ui header">
+        <i class="fire icon"></i>
+        <div class="content">Исполнительные устройства <div class="sub header">Состояние нагрузок контроллера отопления</div>
+        </div>
+    </h2>
+
+    <!-- сообщение об ошибке -->
+    <div id="progUIerror" class="ui negative message hidden error">
+      <i class="close icon"></i>
+      <div class="header">ЗАГОЛОВОК</div>
+      <p lingdex="25">ТЕКС ОШИБКИ</p>
+    </div>
+    <div id="progUI" class="ui segment">
+        <!-- крутилка -->
+        <div id ="TableLoad" class="ui inverted dimmer">
+            <div class="ui text loader"></div>
+        </div>
+        <p></p>
+        <!-- таблица -->
+        <table class="ui very basic collapsing celled table selectable">
+            <thead>
+                <tr>
+                    <th>№ нагрузки</th>
+                    <th>Состояние</th>
+                    <th>Название</th>
+                    <th>Размещение</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+          <tbody id="dataprog" style="display: none">
+            <tr rv-each-prog="prog_list">
+                <td> { prog.actuators_id }</td>
+                <td> <i rv-class="prog.state | tableClassModeIconActOn"></i></td>
+                <td>{ prog.actuators_name } </td>
+                <td> { prog.actuators_place_name }</td>
+                <td><a href="#">Изменить</a></td>
+            </tr>
+        </tbody>
+        </table>
+    </div>
+</div>
+
+    <script>
+
+        binditemsView = function(data){
+
+            var prodList = document.getElementById('dataprog');
+            rivets.formatters.tableClassModeIconActOn = function(value){ //{"0": "Off", "1": "On"}
+                switch (value) {
+                    case "0":
+                        value = 'large circle thin icon';
+                        break;
+                    case "1":
+                        value = 'large check circle icon';
+                        break;
+                    default:
+                        value = 'unknown';
+                }
+                return value;
+            }
+            rivets.bind(prodList,{prog_list:data.result});
+        };
+
+        $( document ).ready(function() {
+            // Загрузка программы контроллера
+            $('div#TableLoad').addClass("active").removeClass("disable")
+            $('#TableLoad div.loader').text("Загрузка").removeClass("indeterminate");
+            var url = "http://192.168.7.202:5000/get/actuator_status";
+            $.getJSON(url + "?callback=?", null, function (datatemp) {
+            })
+                    .done(function (dataprog) {
+                        // Загружено. Отображаем результат
+                        $('#TableLoad div.loader').text("Обработка").addClass("indeterminate");
+                        if (dataprog.error == undefined || dataprog.error == false) {
+                            binditemsView(dataprog);
+                            $('div#TableLoad').removeClass("active").addClass("disable");
+                            $('tbody#dataprog').css({"display": "table-row-group"});
+                        } else {
+                            alert(dataprog.error_message);
+                        }
+                    })
+                    .fail(function () {
+                        //alert("Не удалось загрузить данные");
+                        $('#progUI').css('display', 'none')
+                        $('#progUIerror').removeClass("hidden");
+                        $('#progUIerror .header').text("Ошибка загрузки данных");
+                        $('#progUIerror p').text("Сервер не вернул данные о температуре датчиков");
+                        $('div#TableLoad').removeClass("active").addClass("disable")
+                    });
+        });
+
+    </script>
+</body>
+</html>

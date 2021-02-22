@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test index file</title>
+    <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+    <!-- script src="semantic/dist/semantic.min.js"></script -->
+    <script src="jquery/jquery-3.1.0.js"></script>
+    <script src="sightglass/index.js"></script>
+    <script src="rivets/dist/rivets.js"></script>
+    <!-- Load c3.css -->
+    <link href="c3/c3.css" rel="stylesheet" type="text/css">
+
+    <!-- Load d3.js and c3.js -->
+    <script src="c3/d3.v3.min.js" charset="utf-8"></script>
+    <script src="c3/c3.min.js"></script>
+</head><body>
+<div class="ui secondary pointing menu">
+  <a class="item" href="index.html">Home </a>
+  <a class="item">Температура </a>
+  <a class="item" href="sensors.html">Датчики температуры </a>
+  <a class="item active" href="prog.html">Программа управления </a>
+  <a class="item" href="actuators.html">Нагрузки </a>
+  <a class="ui item">Настройки </a>
+  </div>
+</div>
+<div class="ui segment">
+    <h2 class="ui header">
+        <i class="file powerpoint outline icon"></i>
+        <div class="content">Программа управления <div class="sub header">Программа управления контроллером отопления</div>
+        </div>
+    </h2>
+
+    <!-- сообщение об ошибке -->
+    <div id="progUIerror" class="ui negative message hidden error">
+      <i class="close icon"></i>
+      <div class="header">ЗАГОЛОВОК</div>
+      <p lingdex="25">ТЕКС ОШИБКИ</p>
+    </div>
+    <div id="progUI" class="ui segment">
+        <!-- крутилка -->
+        <div id ="TableLoad" class="ui inverted dimmer">
+            <div class="ui text loader"></div>
+        </div>
+        <p></p>
+        <!-- таблица -->
+        <table class="ui very basic collapsing celled table selectable">
+            <thead>
+                <tr>
+                    <th>№ шага</th>
+                    <th>Дата начала</th>
+                    <th>Дата конца</th>
+                    <th></th>
+                    <th>Режим</th>
+                    <th>Температура</th>
+                    <th>Датчик</th>
+                    <th>Нагрузка</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+          <tbody id="dataprog" style="display: none">
+            <tr rv-each-prog="prog_list" rv-class="prog.enable | tableCssDisable">
+                <td> { prog.prog_step }</td>
+                <td> { prog.time_on_day }.{ prog.time_on_month }.20{ prog.time_on_year } { prog.time_on_h }:{ prog.time_on_m }:{ prog.time_on_s }</td>
+                <td> { prog.time_off_day }.{ prog.time_off_month }.20{ prog.time_off_year } { prog.time_off_h }:{ prog.time_off_m }:{ prog.time_off_s }</td>
+                <td> { prog.time_eze_txt} </td>
+                <td>
+                    <h4 class="ui image">
+                        <i rv-class="prog.time_mode | tableClassModeIcon"></i>
+                        <text style="font-weight: normal;">{ prog.time_mode_txt }</text>
+                    </h4>
+                </td>
+                <td class="right aligned"> { prog.time_min }-{ prog.time_max } C&deg;</td>
+                <td>
+                    <h4 class="ui header" style="margin-bottom: 2px;">{ prog.sensor_place_name }</h4>
+                    <p>{ prog.sensor_notes } ({ prog.sensor_type_name })</p>
+                    <!-- { prog.sensor_notes }, { prog.sensor_id }, { prog.sensor_parameter_name }, { prog.sensor_place_name }, { prog.sensor_type_name } -->
+                </td>
+                <td>
+                    <h4 class="ui header" style="margin-bottom: 2px;">{ prog.actuators_place_name }</h4>
+                    <p>{ prog.actuators_name }</p>
+                    <!--{ prog.actuators_id }, { prog.actuators_name }, { prog.actuators_place_name }-->
+                </td>
+                <td><a href="#">Изменить</a></td>
+            </tr>
+        </tbody>
+        </table>
+    </div>
+</div>
+
+    <script>
+
+        binditemsView = function(data){
+//            rivets.components['prog-item'] = {
+//              template: function(el) {
+//                  return new newchart(this,el) },
+//              initialize: function(el, data) {
+//                      return new makegraph(el, data) }
+//            }
+            var prodList = document.getElementById('dataprog');
+            rivets.formatters.tableCssDisable = function(value){
+                switch (value) {
+                    case 0:
+                        value = 'disabled';
+                        break;
+                    case 1:
+                        value = '';
+                        break;
+                    default:
+                        value = 'unknown';
+                }
+                return value;
+            }
+            rivets.formatters.tableClassModeIcon = function(value){ //{0: "Heating", 1: "Cooling", 2: "Buzzer", 3: "Timer"}
+                switch (value) {
+                    case 0:
+                        value = 'arrow up icon';
+                        break;
+                    case 1:
+                        value = 'arrow down icon';
+                        break;
+                    case 2:
+                        value = 'alarm outline icon';
+                        break;
+                    case 3:
+                        value = 'wait icon';
+                        break;
+                    default:
+                        value = 'unknown';
+                }
+                return value;
+            }
+            rivets.bind(prodList,{prog_list:data.result});
+        };
+
+        $( document ).ready(function() {
+            // Загрузка программы контроллера
+            $('div#TableLoad').addClass("active").removeClass("disable")
+            $('#TableLoad div.loader').text("Загрузка").removeClass("indeterminate");
+            var url = "http://192.168.7.202:5000/get/program_json";
+            $.getJSON(url + "?callback=?", null, function (datatemp) {
+            })
+                    .done(function (dataprog) {
+                        // Загружено. Отображаем результат
+                        $('#TableLoad div.loader').text("Обработка").addClass("indeterminate");
+                        if (dataprog.error == false) {
+                            binditemsView(dataprog);
+                            $('div#TableLoad').removeClass("active").addClass("disable");
+                            $('tbody#dataprog').css({"display": "table-row-group"});
+                        } else {
+                            alert(dataprog.error_message);
+                        }
+                    })
+                    .fail(function () {
+                        //alert("Не удалось загрузить данные");
+                        $('#progUI').css('display', 'none')
+                        $('#progUIerror').removeClass("hidden");
+                        $('#progUIerror .header').text("Ошибка загрузки данных");
+                        $('#progUIerror p').text("Сервер не вернул данные о температуре датчиков");
+                        $('div#TableLoad').removeClass("active").addClass("disable")
+                    });
+        });
+
+    </script>
+
+<!--
+     --- 9.Get program ---
+Program(0) On Heating DS18B20 Start: 2000.01.01 10:00:00 Stop: 2099.01.01 11:00:00 L(0) Sensor(1) t 50.0...70.0 ˚C
+Program(1) On Heating DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(0) Sensor(1) t 50.0...56.0 ˚C
+Program(2) On Cooling DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(5) Sensor(1) t 45.0...50.0 ˚C
+Program(3) On Heating DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(1) Sensor(2) t 23.8...24.4 ˚C
+Program(4) On Heating DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(2) Sensor(2) t 23.8...24.4 ˚C
+Program(5) Off Heating DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(3) Sensor(2) t 23.7...23.8 ˚C
+Program(6) Off Heating DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(4) Sensor(2) t 23.66...24.0 ˚C
+Program(7) Off Heating DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(4) Sensor(2) t 23.7...24.0 ˚C
+Program(8) On Cooling DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(6) Sensor(4) t 25.0...28.4 ˚C
+Program(9) On Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 05:00:00 L(7) Sensor(1) t 653.66...654.26 ˚C
+Program(10) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(11) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(12) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(13) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(14) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(15) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(16) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(17) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(18) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(19) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(20) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(21) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(22) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(23) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(24) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(25) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(26) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(27) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(28) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(29) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(30) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(31) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+
+
+
+Program(0) Вкл Нагрев DS18B20 Start: 2000.01.01 10:00:00 Stop: 2099.01.01 11:00:00 L(0) Sensor(1) t 50.0...70.0 ˚C time_eze: 1 ezedata: 01000000000000000000000000000000 time_bud:00000001
+Program(1) Вкл Нагрев DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(0) Sensor(1) t 50.0...56.0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(2) Вкл Охлаждение DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(5) Sensor(1) t 45.0...50.0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(3) Вкл Нагрев DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(1) Sensor(2) t 24.0...24.6 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(4) Вкл Нагрев DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(2) Sensor(2) t 24.0...24.6 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(5) Вкл Нагрев DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(3) Sensor(2) t 24.0...24.3 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(6) Выкл Нагрев DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(4) Sensor(2) t 24.46...24.8 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(7) Вкл Нагрев DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 23:59:59 L(4) Sensor(2) t 24.05...24.2 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(8) Вкл Охлаждение DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(6) Sensor(4) t 25.0...28.4 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(9) Вкл Таймер DS18B20 Start: 2000.01.01 07:00:00 Stop: 2099.01.01 07:07:00 L(4) Sensor(1) t 653.66...654.26 ˚C time_eze: 1 ezedata: 01000000000000000000000000000000 time_bud:00000001
+Program(10) Вкл Нагрев  Start: 2000.01.01 00:00:00 Stop: 2000.01.01 23:59:59 L(4) Sensor(1) t 60.5...70.0 ˚C time_eze: 1 ezedata: 01000000000000000000000000000000 time_bud:00000001
+Program(11) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(12) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(13) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(14) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(15) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(16) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(17) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(18) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(19) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(20) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(21) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(22) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(23) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(24) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(25) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(26) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(27) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(28) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(29) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(30) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+Program(31) Выкл Таймер DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C time_eze: 0 ezedata: 00000000000000000000000000000000 time_bud:00000001
+192.168.7.8 - - [20/Sep/2018 21:13:58] "GET /get/program_json/?callback=jQuery310017275156142043824_1537467237715&_=1537467237716 HTTP/1.1" 200 -
+
+-->
+</body>
+</html>

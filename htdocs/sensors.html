@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test index file</title>
+    <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+    <!-- script src="semantic/dist/semantic.min.js"></script -->
+    <script src="jquery/jquery-3.1.0.js"></script>
+    <script src="sightglass/index.js"></script>
+    <script src="rivets/dist/rivets.js"></script>
+    <!-- Load c3.css -->
+    <link href="c3/c3.css" rel="stylesheet" type="text/css">
+
+    <!-- Load d3.js and c3.js -->
+    <script src="c3/d3.v3.min.js" charset="utf-8"></script>
+    <script src="c3/c3.min.js"></script>
+</head><body>
+<div class="ui secondary pointing menu">
+  <a class="item" href="index.html">Home </a>
+  <a class="item">Температура </a>
+  <a class="item active" href="sensors.html">Датчики температуры </a>
+  <a class="item" href="prog.html">Программа управления </a>
+  <a class="item" href="actuators.html">Нагрузки </a>
+  <a class="ui item">Настройки </a>
+  </div>
+</div>
+<div class="ui segment">
+    <h2 class="ui header">
+        <i class="heartbeat icon"></i>
+        <div class="content">Температура с датчиков <div class="sub header">Температура с датчиков в реальном времени</div>
+        </div>
+    </h2>
+    <p id="api">
+        API version: { api_data.api_version }<br />
+        Дата: { api_data.date }<br />
+        Время: { api_data.time }<br />
+    </p>
+
+    <!-- сообщение об ошибке -->
+    <div id="temperatureUIerror" class="ui negative message hidden error">
+      <i class="close icon"></i>
+      <div class="header">ЗАГОЛОВОК</div>
+      <p lingdex="25">ТЕКС ОШИБКИ</p>
+    </div>
+    <div id="temperatureUI" class="ui segment">
+        <!-- крутилка -->
+        <div id ="TableTempLoad" class="ui inverted dimmer">
+            <div class="ui text loader"></div>
+        </div>
+        <p></p>
+        <!-- таблица -->
+        <table class="ui very basic collapsing celled table">
+            <thead>
+                <tr>
+                    <th>Место установки</th>
+                    <th>Адрес датчика</th>
+                    <th>Температура</th>
+                    <th></th>
+                </tr>
+            </thead>
+          <tbody id="datatemp">
+            <tr rv-each-sensor="sensor_temp">
+                <td>
+                  <h4 class="ui image header">
+                    <i class="info icon"></i>
+                    <div class="content"> { sensor.sensor_place }  <div class="sub header"> { sensor.sensor_notes } </div>
+                        <div class="sub header">{ sensor.link_id }</div>
+                    </div>
+                  </h4>
+                </td>
+                <td> { sensor.addr } </td>
+                <td><div class="ui header"> { sensor.sensor_value } C&deg;</div></td>
+                <td><link rv-link_id="sensor.link_id" class="ui tsmgraph"><div rv-text="event.startDate | makegraph" class="gr" rv-link_id="sensor.link_id"></div><sensor-item graph="sensor"></sensor-item></td>
+            </tr>
+        </tbody>
+        </table>
+    </div>
+</div>
+
+    <script>
+
+
+        var view = null;
+        bindView = function(view_data){
+            if(view != null){  // If the view is binded previously, unbind it
+                view.unbind();
+            }
+            view = rivets.bind($('#api'), {api_data: view_data});  // Bind a fresh object to the view
+        };
+
+        makegraph = function (el, data) {
+            c3.generate({
+                bindto: el,
+                size: { width: 300, height: 72},
+                data: { json: data.graph.graph_history, x: 's_date', xFormat: '%Y-%m-%d %H:%M:%S', type: "line",
+                        keys: { x:'s_date', value:["s_value_real"]} },
+                axis: { x:{ type: "timeseries", show: false },
+                        y:{ tick:{ count: 3, format: function (d) { return Math.round(d*10)/10 + 'C'; }} }
+                },
+                legend: { show: false },
+                line: { connectNull: true },
+                point: { show: false }
+                });
+            return '';
+        }
+
+        newchart = function (data,el) {
+            return ["Graphics-1"];
+        }
+
+        binditemsView = function(data){
+            rivets.components['sensor-item'] = {
+              template: function(el) {
+                  return new newchart(this,el) },
+              initialize: function(el, data) {
+                      return new makegraph(el, data) }
+            }
+            var tempList = document.getElementById('datatemp');
+            rivets.bind(tempList,{sensor_temp:data.result});
+        };
+
+        $( document ).ready(function() {
+            // Загрузка шапки
+            var url = "http://192.168.7.202:5000";
+            $.getJSON(url + "?callback=?", null, function (data) {
+                bindView(data);
+            });
+
+
+            // Загрузка таблицы температуры датчиков
+            $('div#TableTempLoad').addClass("active").removeClass("disable")
+            $('#TableTempLoad div.loader').text("Загрузка").removeClass("indeterminate");
+            var url = "http://192.168.7.202:5000/get/temp";
+            $.getJSON(url + "?callback=?", null, function (datatemp) {
+            })
+                    .done(function (datatemp) {
+                        // Загружено. Отображаем результат
+                        $('#TableTempLoad div.loader').text("Обработка").addClass("indeterminate");
+                        binditemsView(datatemp);
+                        $('div#TableTempLoad').removeClass("active").addClass("disable");
+                    })
+                    .fail(function () {
+                        //alert("Не удалось загрузить данные");
+                        $('#temperatureUI').css('display', 'none')
+                        $('#temperatureUIerror').removeClass("hidden");
+                        $('#temperatureUIerror .header').text("Ошибка загрузки данных");
+                        $('#temperatureUIerror p').text("Сервер не вернул данные о температуре датчиков");
+                        $('div#TableTempLoad').removeClass("active").addClass("disable")
+                    });
+        });
+
+    </script>
+</body>
+</html>

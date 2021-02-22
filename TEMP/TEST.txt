@@ -1,0 +1,103 @@
+ ----------------------------------------------
+ --- START ---
+ --- 1.Get temperature(sensors) ---
+ --- read 64 bytes
+t(0)=54.62 ˚C
+t(1)=22.37 ˚C
+t(2)=19.43 ˚C
+t(3)=28.06 ˚C
+t(4)=0.00 ˚C
+t(5)=0.00 ˚C
+t(6)=0.00 ˚C
+t(7)=0.00 ˚C
+t(8)=0.00 ˚C
+t(9)=0.00 ˚C
+t(10)=0.00 ˚C
+t(11)=0.00 ˚C
+t(12)=0.00 ˚C
+t(13)=0.00 ˚C
+t(14)=0.00 ˚C
+t(15)=0.00 ˚C
+t(16)=0.00 ˚C
+t(17)=0.00 ˚C
+t(18)=0.00 ˚C
+t(19)=0.00 ˚C
+t(20)=0.00 ˚C
+t(21)=0.00 ˚C
+t(22)=0.00 ˚C
+t(23)=0.00 ˚C
+t(24)=0.00 ˚C
+t(25)=0.00 ˚C
+t(26)=0.00 ˚C
+t(27)=0.00 ˚C
+t(28)=0.00 ˚C
+t(29)=0.00 ˚C
+t(30)=0.00 ˚C
+t(31)=0.00 ˚C
+ --- 3.Logical status of outputs ---
+outputs state 0byte (BIN) >> 01000000
+outputs state 1byte (BIN) >> 11010000
+ --- 4.Real status on outputs ---
+outputs state (BIN) >> 0000000001000000
+After BIN mask
+outputs state (BIN) >> 0b0
+State(12)=Off
+State(11)=Off
+State(10)=Off
+State(9)=Off
+State(8)=Off
+State(7)=Off
+State(4)=Off
+State(3)=Off
+State(2)=Off
+State(1)=Off
+ --- 5.Battary voltage ---
+3.53V
+ --- 6.Current version firmware ---
+Version:  ?????? 1.95
+ --- 8.0.Get time (new method) ---
+date: 2016-09-02 day:5 14:57:04
+ --- 8.Get time ---
+date: 2016-09-02 day:5 14:57:04
+ --- 7.Set date/time ---
+  - test Set date/time :
+date: 2016-09-02 day:5 14:57:06
+ --- 9.Get program ---
+Program(0) On Heating DS18B20 Start: 2000.01.01 10:00:00 Stop: 2099.01.01 11:00:00 L(0) Sensor(1) t 50.0...70.0 ˚C
+Program(1) On Heating DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(0) Sensor(1) t 50.0...56.0 ˚C
+Program(2) On Cooling DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(5) Sensor(1) t 45.0...50.0 ˚C
+Program(3) Off Heating DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(1) Sensor(2) t 23.8...24.4 ˚C
+Program(4) Off Heating DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(2) Sensor(2) t 23.8...24.4 ˚C
+Program(5) Off Heating DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(3) Sensor(2) t 23.7...23.8 ˚C
+Program(6) Off Heating DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(4) Sensor(2) t 23.66...24.0 ˚C
+Program(7) Off Heating DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(4) Sensor(2) t 23.7...24.0 ˚C
+Program(8) On Cooling DS18B20 Start: 2000.01.01 00:00:00 Stop: 2099.01.01 00:00:00 L(6) Sensor(4) t 25.0...28.4 ˚C
+Program(9) On Heating DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(9) Sensor(2) t 653.66...654.26 ˚C
+Program(10) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(11) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(12) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(13) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(14) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(15) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(16) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(17) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(18) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(19) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(20) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(21) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(22) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(23) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(24) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(25) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(26) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(27) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(28) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(29) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(30) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+Program(31) Off Timer DS18B20 Start: 2000.01.01 00:00:00 Stop: 2000.01.01 00:00:00 L(0) Sensor(1) t 0...0 ˚C
+ --- 11.Get sensor from line ---
+:28:f0:46:e9:02:00:00:8c
+:28:3f:3a:e9:02:00:00:7b
+:28:b0:3c:e9:02:00:00:29
+:28:bd:24:e9:02:00:00:21
+ --- 20.Display content ---
